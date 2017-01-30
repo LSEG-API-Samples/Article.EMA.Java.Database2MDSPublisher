@@ -19,7 +19,9 @@ The fundamental issue with publishing database contents is how to extract that d
 
 Let us take a brief look at these.
 
-##### Periodic polling of database table
+---
+
+#### Periodic polling of database table
 
 This technique involves an external application which uses a database connector ([JDBC/ODBC](#glossary)) and extracts all the data from desired schema. The extracted data is hashed and kept in memory or in local filesystem depending on size. The extraction process is repeated periodically; compared with cache and any differences are published. The cache is updated with new information after publishing.
 
@@ -31,8 +33,9 @@ It works with all the database providers.
 Additional load on database because of periodic polling and complete re-read of entire schema.   
 It may not be feasible to maintain external cache for extremely large datasets.   
 
+---
 
-##### Polling and updating the database table
+#### Polling and updating the database table
 
 This technique involves an external application which uses a database connector ([JDBC/ODBC](#glossary)) and extracts/updates the desired schema's. Unlike previous technique, this application only selects the new or changed information from database, and then marks this information as "already-processed". This can be accomplished simply by using following SQL statements in the code:
 
@@ -57,8 +60,9 @@ There is no need to maintain huge external cache.
 The database schema needs modification and write access provided to an external application, which is not always possible.   
 There is a possibility of race condition with non transactional database.
 
+---
 
-##### In-database actions - executable code
+#### In-database actions - executable code
 
 This technique exploits the in-database code execution capability provided by some database vendors. Oracle and PostgreSQL are two such providers. The user code is allowed to inspect and act of the data that has or is about to change. This user code can then invoke the API calls required to publish the data directly from within database.
 
@@ -71,8 +75,9 @@ In-database code often executes with system level privileges, leading to securit
 The concept of persistent session which stays connected to publisher, may not be available.   
 User code may consume additional CPU resources which may put additional load on database.
 
+---
 
-##### Database triggers
+#### Database triggers
 
 Database triggers is the ability to execute SQL statements within database, upon meeting certain trigger conditions. The trigger SQL code executes within the context of changed dataset. It is a standard concept although its implementation and capabilities vary across difference database providers. It is possible to write a database trigger to extract the modified data and write it to an external file, which is picked up by an external application and then published.
    
@@ -91,7 +96,7 @@ This technique of using database trigger is explored in this article, using MySQ
 
 ### Solution
 
-We will develop an adapter application which will read database information and appear as non-interactive OMM provider to enterprise platform. Since databases can be updated anytime, the **database triggers** mechanism as described above will be utilized. In our case the trigger will extract the updated data into an external file, which the adapter code will read and publish to [TREP](#glossary) infrastructure.
+We will develop an adapter application which will read database information and appear as non-interactive OMM provider to enterprise platform. Since databases can be updated anytime, the [**database triggers**](#database-triggers) mechanism as described above will be utilized. In our case the trigger will extract the new or updated data into an external file, which the adapter code will read and publish to [TREP](#glossary) infrastructure.
 
 The data model of published content will be specific to information within database. For the purpose of this article, we will assume a flat non-relational schema which will be encoded and published as [OMM](#glossary) based Market Price message. A supporting trigger code will reside in our database and will be invoked whenever the data changes in the monitored table. This trigger will write changed information (to be published) to a flat file. 
 
@@ -100,7 +105,7 @@ A Java application built using [EMA](#glossary) API will monitor the filesystem 
 Lets dig deeper into the setup.
 
 #### Database:
-The database schema name we are going to use is **"finance"**, and the table of interest is called **"quotes"** which contains three fields - _Instrument name_, _Bid price_ and _Ask price_ with sample data as shown:
+The database schema name we are going to use is **finance**, and the table of interest is called **quotes** which contains three fields - _Instrument name_, _Bid price_ and _Ask price_ with sample data as shown:
 
 	finance.quotes
 
@@ -110,11 +115,11 @@ The database schema name we are going to use is **"finance"**, and the table of 
 	INSTR2	44.79	45.02
 	INSTR3	14.30	14.90
 
-We need to publish any insert or update to existing dataset. The SQL code in attached sample code will create and populate this schema and table.
+We need to publish any insert or update to existing dataset. The SQL commands in sample code accompanying this article will create and populate this schema and table.
 
 
 #### Trigger:
-A trigger will monitor this table for changes. In MySQL a trigger code can also output the trigger'ed data to a file. Define a trigger in **"finance"** as:
+A trigger will monitor this table for changes. In MySQL a trigger code can also output the trigger'ed data to a file. Define a trigger in **finance** as:
 
 ```sql
 CREATE TRIGGER autopublish1   
@@ -129,11 +134,11 @@ BEGIN
 END;
 ```
 
-This will write new data (database insert) into 'newData.csv' file. A similar trigger is created for SQL Update as well. Complete trigger code is in attached sample code. The "Scanner" class from application loads and parses the information contained in this file. In the attached code "Scanner" class hard segregates the data into predefined "BID" and "ASK" buckets. It can be modified to be driven by application configuration or the published fields names can also be extracted from the database.
+This will write new data (database insert) into 'newData.csv' file. A similar trigger is created for SQL Update as well. Complete trigger code is in attached sample code. The **Scanner** class from application loads and parses the information contained in this file. In the attached code **Scanner** class hard segregates the data into predefined **BID** and **ASK** buckets. It can be modified to be driven by application configuration or the published fields names can also be extracted from the database.
 
 
 ### Provider
-The published data is a [RDM](#glossary) Market price message, which is an [OMM](#glossary) Field List where the field entries are name-value data pairs. We will use a custom service to publish the sample derived data from database and to distinguish it from market data provided by Thomson Reuters. The "Provider" class in our application handles all the publishing tasks. It maintains a handle to all the published items, and publishes an Image or an Update message.
+The published data is a [RDM](#glossary) Market price message, which is an [OMM](#glossary) Field List where the field entries are name-value data pairs. We will use a custom service to publish the sample derived data from database and to distinguish it from market data provided by Thomson Reuters. The **Provider** class in our application handles all the publishing tasks. It maintains a handle to all the published items, and publishes an Image or an Update message.
 
 ```java
 FieldList fieldList = EmaFactory.createFieldList();
@@ -146,7 +151,7 @@ data.forEach((key ,value) -> {
 });
 ```
 
-Here the data from file which has been parsed into a Key/Value Map by "Scanner" class is marshaled into an OMM FieldList which is then packaged as a Refresh or Update message and published by OMMProvider.
+Here the data from file which has been parsed into a Key/Value Map by **Scanner** class is marshaled into an OMM FieldList which is then packaged as a Refresh or Update message and published by OMMProvider.
 
 
 ### Sample code
@@ -154,7 +159,7 @@ Sample code for this article is available in src directory. This sample uses Jav
 
 
 ### Testing
-To check the end to end process flow, start the sample by providing Service name, ADS host name etc on the command line. Upon successful startup, the console window should display API messages showing successful login to ADS, and that application is monitoring the target directory for database files. Whenever any new data is inserted into target table, our trigger **"autopublish1"** will be invoked which will write it to a file, and that data will be published out to TREP.
+To check the end to end process flow, start the sample by providing a TREP Service name, ADS host name etc on the command line. You must be entitled to publish on this service and can refer to [EMA Quick Start and Tutorials - NI Provider](https://developers.thomsonreuters.com/elektron/elektron-sdk-java/learning?content=12016&type=learning_material_item) on how to set this up. Upon successful startup, the console window should display API messages showing successful login to ADS, and that application is monitoring the target directory for database files. Whenever any new data is inserted into target table, our trigger **autopublish1** will be invoked which will write it to a file, and that data will be picked up by **Scanner** published out to TREP.
 
 ```shell
 Started monitoring: C:\Temp
@@ -188,7 +193,7 @@ Outgoing Reactor message (Tue Jan 17 10:43:23 EST 2017):
 </UPDATE>
 ```
 
-Any market data subscriber will be able to receive the image and update messages from TREP.
+Any market data subscriber is able to receive the resulting image and update messages from TREP.
 
 ```shell
 Jan 17, 2017 10:43:15 AM com.thomsonreuters.ema.access.ChannelCallbackClient reactorChannelEventCallback
@@ -213,7 +218,10 @@ ASK(25): 17.45
 ```
 
 ### References
-EMA provider example
+[Elektron SDK](https://developers.thomsonreuters.com/elektron/elektron-sdk-java/docs)   
+[EMA - Quick Start](https://developers.thomsonreuters.com/elektron/elektron-sdk-java/quick-start)   
+[EMA - Non Interactive Provider Example](https://developers.thomsonreuters.com/elektron/elektron-sdk-java/learning?content=12016&type=learning_material_item)
+
 
 ### Glossary
 TREP:	Thomson Reuters Enterprise Platform   
