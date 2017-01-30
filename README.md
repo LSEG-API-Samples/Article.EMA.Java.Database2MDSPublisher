@@ -6,11 +6,12 @@ Thomson Reuters also provides a product called Database Publishing System (DPS),
 
 
 ### Prerequisites
-Article assumes knowledge of [TREP](#Glossary) infrastructure and access to an [ADS](#Glossary) with publishing entitlements. Reader is assumed to have basic knowledge of database concepts like Schemas, Tables, Triggers etc. A database with administrator privileges is required to test the example. The sample code presented uses SQL and Java language. Familiarity and access to [EMA API](#Glossary) toolkit is required.
+Article assumes knowledge of [TREP](#glossary) infrastructure and access to an [ADS](#glossary) with publishing entitlements. Reader is assumed to have basic knowledge of database concepts like Schemas, Tables, Triggers etc. A database with administrator privileges is required to test the example. The sample code presented uses SQL and Java language. Familiarity and access to [EMA API](#glossary) toolkit is required.
 
 
 ### Methodologies
 The fundamental issue with publishing database contents is how to extract that data in the first place. Once extracted, it is easy to publish this data using Thomson Reuters API's and there are numerous publishing examples demonstrating that. Unlike SQL, the data extraction process and techniques are not standardized across different database providers. There are a few ways in which this can be accomplished and there is no single best technique, or one which can be used with every database provider. The desired technique which developer may end up using, will depend upon database in question, ability to access and/or modify the database schema etc. Common techniques to achieve this are:
+
 1. Periodic polling of database table
 2. Polling and updating the database table
 3. In-database actions - executable code
@@ -20,7 +21,7 @@ Let us take a brief look at these.
 
 ##### Periodic polling of database table
 
-This technique involves an external application which uses a database connector ([JDBC/ODBC](#Glossary)) and extracts all the data from desired schema. The extracted data is hashed and kept in memory or in local filesystem depending on size. The extraction process is repeated periodically; compared with cache and any differences are published. The cache is updated with new information after publishing.
+This technique involves an external application which uses a database connector ([JDBC/ODBC](#glossary)) and extracts all the data from desired schema. The extracted data is hashed and kept in memory or in local filesystem depending on size. The extraction process is repeated periodically; compared with cache and any differences are published. The cache is updated with new information after publishing.
 
 **Pros:**   
 Completely external application which requires no change to database setup.   
@@ -33,7 +34,7 @@ It may not be feasible to maintain external cache for extremely large datasets.
 
 ##### Polling and updating the database table
 
-This technique involves an external application which uses a database connector ([JDBC/ODBC](#Glossary)) and extracts/updates the desired schema's. Unlike previous technique, this application only selects the new or changed information from database, and then marks this information as "already-processed". This can be accomplished simply by using following SQL statements in the code:
+This technique involves an external application which uses a database connector ([JDBC/ODBC](#glossary)) and extracts/updates the desired schema's. Unlike previous technique, this application only selects the new or changed information from database, and then marks this information as "already-processed". This can be accomplished simply by using following SQL statements in the code:
 
 ```java
 // BEGIN Transaction   
@@ -90,11 +91,11 @@ This technique of using database trigger is explored in this article, using MySQ
 
 ### Solution
 
-We will develop an adapter application which will read database information and appear as non-interactive OMM provider to enterprise platform. Since databases can be updated anytime, the **database triggers** mechanism as described above will be utilized. In our case the trigger will extract the updated data into an external file, which the adapter code will read and publish to [TREP](#Glossary) infrastructure.
+We will develop an adapter application which will read database information and appear as non-interactive OMM provider to enterprise platform. Since databases can be updated anytime, the **database triggers** mechanism as described above will be utilized. In our case the trigger will extract the updated data into an external file, which the adapter code will read and publish to [TREP](#glossary) infrastructure.
 
-The data model of published content will be specific to information within database. For the purpose of this article, we will assume a flat non-relational schema which will be encoded and published as [OMM](#Glossary) based Market Price message. A supporting trigger code will reside in our database and will be invoked whenever the data changes in the monitored table. This trigger will write changed information (to be published) to a flat file. 
+The data model of published content will be specific to information within database. For the purpose of this article, we will assume a flat non-relational schema which will be encoded and published as [OMM](#glossary) based Market Price message. A supporting trigger code will reside in our database and will be invoked whenever the data changes in the monitored table. This trigger will write changed information (to be published) to a flat file. 
 
-A Java application built using [EMA](#Glossary) API will monitor the filesystem for this flat file, and parse and publish the extracted data. 
+A Java application built using [EMA](#glossary) API will monitor the filesystem for this flat file, and parse and publish the extracted data. 
 
 Lets dig deeper into the setup.
 
@@ -132,7 +133,7 @@ This will write new data (database insert) into 'newData.csv' file. A similar tr
 
 
 ### Provider
-The published data is a [RDM](#Glossary) Market price message, which is an [OMM](#Glossary) Field List where the field entries are name-value data pairs. We will use a custom service to publish the sample derived data from database and to distinguish it from market data provided by Thomson Reuters. The "Provider" class in our application handles all the publishing tasks. It maintains a handle to all the published items, and publishes an Image or an Update message.
+The published data is a [RDM](#glossary) Market price message, which is an [OMM](#glossary) Field List where the field entries are name-value data pairs. We will use a custom service to publish the sample derived data from database and to distinguish it from market data provided by Thomson Reuters. The "Provider" class in our application handles all the publishing tasks. It maintains a handle to all the published items, and publishes an Image or an Update message.
 
 ```java
 FieldList fieldList = EmaFactory.createFieldList();
