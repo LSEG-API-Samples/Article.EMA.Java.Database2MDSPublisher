@@ -19,7 +19,6 @@ The fundamental issue with publishing database contents is how to extract that d
 
 Let us take a brief look at these.
 
----
 
 #### Periodic polling of database table
 
@@ -64,7 +63,7 @@ There is a possibility of race condition with non transactional database.
 
 #### In-database actions - executable code
 
-This technique exploits the in-database code execution capability provided by some database vendors. Oracle and PostgreSQL are two such providers. The user code is allowed to inspect and act of the data that has or is about to change. This user code can then invoke the API calls required to publish the data directly from within database.
+This technique exploits the in-database code execution capability provided by some database vendors. Oracle (using Java and onDatabaseChangeNotification) and PostgreSQL (using Listen/Notify) are two such providers. The user code is allowed to inspect and act of the data that has or is about to change. This user code can then invoke the API calls required to publish the data directly from within database.
 
 **Pros:**   
 Direct interface to data without any overhead of external extraction.
@@ -161,7 +160,7 @@ Sample code for this article is available in src directory. This sample uses Jav
 ### Testing
 To check the end to end process flow, start the sample by providing a TREP Service name, ADS host name etc on the command line. You must be entitled to publish on this service and can refer to [EMA Quick Start and Tutorials - NI Provider](https://developers.thomsonreuters.com/elektron/elektron-sdk-java/learning?content=12016&type=learning_material_item) on how to set this up. Upon successful startup, the console window should display API messages showing successful login to ADS, and that application is monitoring the target directory for database files. Whenever any new data is inserted into target table, our trigger **autopublish1** will be invoked which will write it to a file, and that data will be picked up by **Scanner** published out to TREP.
 
-```shell
+```sh
 Started monitoring: C:\Temp
 Processing file: newData3.csv
 Publishing: INSTR3, data: {22=1476, 25=1492}
@@ -195,7 +194,7 @@ Outgoing Reactor message (Tue Jan 17 10:43:23 EST 2017):
 
 Any market data subscriber is able to receive the resulting image and update messages from TREP.
 
-```shell
+```sh
 Jan 17, 2017 10:43:15 AM com.thomsonreuters.ema.access.ChannelCallbackClient reactorChannelEventCallback
 INFO: loggerMsg
 	ClientName: ChannelCallbackClient
@@ -217,10 +216,16 @@ BID(22): 14.42
 ASK(25): 17.45
 ```
 
+
 ### References
-[Elektron SDK](https://developers.thomsonreuters.com/elektron/elektron-sdk-java/docs)   
-[EMA - Quick Start](https://developers.thomsonreuters.com/elektron/elektron-sdk-java/quick-start)   
-[EMA - Non Interactive Provider Example](https://developers.thomsonreuters.com/elektron/elektron-sdk-java/learning?content=12016&type=learning_material_item)
+
+
+* [Elektron SDK](https://developers.thomsonreuters.com/elektron/elektron-sdk-java/docs)
+* [EMA - Quick Start](https://developers.thomsonreuters.com/elektron/elektron-sdk-java/quick-start)
+* [EMA - Non Interactive Provider Example](https://developers.thomsonreuters.com/elektron/elektron-sdk-java/learning?content=12016&type=learning_material_item) 
+* [MySQL Database](https://www.mysql.com/)
+* [MySQL Triggers](https://dev.mysql.com/doc/refman/5.7/en/trigger-syntax.html)
+
 
 
 ### Glossary
