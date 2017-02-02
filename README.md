@@ -6,7 +6,7 @@ Thomson Reuters also provides a product called Database Publishing System (DPS),
 
 
 ### Prerequisites
-Article assumes knowledge of [TREP](#glossary) infrastructure and access to an [ADS](#glossary) with publishing entitlements. Reader is assumed to have basic knowledge of database concepts like Schemas, Tables, Triggers etc. A database with administrator privileges is required to test the example. The sample code presented uses SQL and Java language. Familiarity and access to [EMA API](#glossary) toolkit is required.
+Article assumes knowledge of [TREP](#glossary) infrastructure and access to an [ADS](#glossary) with publishing entitlements. Reader is assumed to have basic knowledge of database concepts like Schemas, Tables, Triggers etc. A database with administrator privileges is required to test the example. The sample code presented uses SQL and Java language. Familiarity and access to [EMA API](#glossary) toolkit and MySQL database is required.
 
 
 ### Methodologies
