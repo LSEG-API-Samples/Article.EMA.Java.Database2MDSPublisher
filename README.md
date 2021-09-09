@@ -1,16 +1,16 @@
 # Publishing content from internal database to TREP
 
-Database is/was a central entity in many legacy systems. Applications were built and maintained around database capabilities, resulting in accumulation of high quality and rare information in the database. With the advent of newer technologies, which have moved from database centric to message oriented architecture, often times there is a need for an adapter which can extract the information from database and provide it on a bus. This article will briefly discuss various mechanisms to do such a thing. In this article we will discuss techniques which can be used to extract data from a table, and develop a minimal OMM publisher using Thomson Reuters Elektron Message API to publish this extracted data to TREP infrastructure. The sample code provided with this article is specifically for MySQL database, but can be extended to any other database and complex schema's. While a simple usage scenario is discussed in this article, an application developer should also consider possibilities - such as when database information is published, but the transaction rolls back, making the just published information incorrect.
+Database is/was a central entity in many legacy systems. Applications were built and maintained around database capabilities, resulting in accumulation of high quality and rare information in the database. With the advent of newer technologies, which have moved from database centric to message oriented architecture, often times there is a need for an adapter which can extract the information from database and provide it on a bus. This article will briefly discuss various mechanisms to do such a thing. In this article we will discuss techniques which can be used to extract data from a table, and develop a minimal OMM publisher using Refinitiv Realtime API to publish this extracted data to TREP infrastructure. The sample code provided with this article is specifically for MySQL database, but can be extended to any other database and complex schema's. While a simple usage scenario is discussed in this article, an application developer should also consider possibilities - such as when database information is published, but the transaction rolls back, making the just published information incorrect.
 
-Thomson Reuters also provides a product called Database Publishing System (DPS), which is a tightly integrated component of the Thomson Reuters Enterprise Platform for Real-Time that publishes information stored inside relational databases or flat files, in CSV and XML formats, and makes it available to any data consuming application.
+Refinitiv also provides a product called Database Publishing System (DPS), which is a tightly integrated component of the Refinitiv Realtime Market Data System that publishes information stored inside relational databases or flat files, in CSV and XML formats, and makes it available to any data consuming application.
 
 
 ### Prerequisites
-Article assumes knowledge of [TREP](#glossary) infrastructure and access to an [ADS](#glossary) with publishing entitlements. Reader is assumed to have basic knowledge of database concepts like Schemas, Tables, Triggers etc. A database with administrator privileges is required to test the example. The sample code presented uses SQL and Java language. Familiarity and access to [EMA API](#glossary) toolkit and MySQL database is required.
+Article assumes knowledge of [MDS](#glossary) infrastructure and access to an [ADS](#glossary) with publishing entitlements. Reader is assumed to have basic knowledge of database concepts like Schemas, Tables, Triggers etc. A database with administrator privileges is required to test the example. The sample code presented uses SQL and Java language. Familiarity and access to [RTSDK API](#glossary) toolkit and MySQL database is required.
 
 
 ### Methodologies
-The fundamental issue with publishing database contents is how to extract that data in the first place. Once extracted, it is easy to publish this data using Thomson Reuters API's and there are numerous publishing examples demonstrating that. Unlike SQL, the data extraction process and techniques are not standardized across different database providers. There are a few ways in which this can be accomplished and there is no single best technique, or one which can be used with every database provider. The desired technique which developer may end up using, will depend upon database in question, ability to access and/or modify the database schema etc. Common techniques to achieve this are:
+The fundamental issue with publishing database contents is how to extract that data in the first place. Once extracted, it is easy to publish this data using Refinitiv  API's and there are numerous publishing examples demonstrating that. Unlike SQL, the data extraction process and techniques are not standardized across different database providers. There are a few ways in which this can be accomplished and there is no single best technique, or one which can be used with every database provider. The desired technique which developer may end up using, will depend upon database in question, ability to access and/or modify the database schema etc. Common techniques to achieve this are:
 
 1. Periodic polling of database table
 2. Polling and updating the database table
@@ -137,7 +137,7 @@ This will write new data (database insert) into 'newData.csv' file. A similar tr
 
 
 ### Provider
-The published data is a [RDM](#glossary) Market price message, which is an [OMM](#glossary) Field List where the field entries are name-value data pairs. We will use a custom service to publish the sample derived data from database and to distinguish it from market data provided by Thomson Reuters. The **Provider** class in our application handles all the publishing tasks. It maintains a handle to all the published items, and publishes an Image or an Update message.
+The published data is a [RDM](#glossary) Market price message, which is an [OMM](#glossary) Field List where the field entries are name-value data pairs. We will use a custom service to publish the sample derived data from database and to distinguish it from market data provided by Refinitiv. The **Provider** class in our application handles all the publishing tasks. It maintains a handle to all the published items, and publishes an Image or an Update message.
 
 ```java
 FieldList fieldList = EmaFactory.createFieldList();
@@ -158,7 +158,7 @@ Sample code for this article is available in src directory. This sample uses Jav
 
 
 ### Testing
-To check the end to end process flow, start the sample by providing a TREP Service name, ADS host name etc on the command line. You must be entitled to publish on this service and can refer to [EMA Quick Start and Tutorials - NI Provider](https://developers.thomsonreuters.com/elektron/elektron-sdk-java/learning?content=12016&type=learning_material_item) on how to set this up. Upon successful startup, the console window should display API messages showing successful login to ADS, and that application is monitoring the target directory for database files. Whenever any new data is inserted into target table, our trigger **autopublish1** will be invoked which will write it to a file, and that data will be picked up by **Scanner** published out to TREP.
+To check the end to end process flow, start the sample by providing a TREP Service name, ADS host name etc on the command line. You must be entitled to publish on this service and can refer to [RTSDK Quick Start and Tutorials - NI Provider](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-java/tutorials#ema-ni-provider-introduction) on how to set this up. Upon successful startup, the console window should display API messages showing successful login to ADS, and that application is monitoring the target directory for database files. Whenever any new data is inserted into target table, our trigger **autopublish1** will be invoked which will write it to a file, and that data will be picked up by **Scanner** published out to TREP.
 
 ```sh
 Started monitoring: C:\Temp
@@ -229,7 +229,7 @@ ASK(25): 17.45
 
 
 ### Glossary
-TREP:	Thomson Reuters Enterprise Platform   
+MDS:	Refinitiv Realtime Market Data System
 ADS:	Advanced Distributing Server   
 EMA:	Elektron Message API   
 JDBC:	Java Database Connectivity   
