@@ -195,7 +195,7 @@ Outgoing Reactor message (Tue Jan 17 10:43:23 EST 2017):
 Any market data subscriber is able to receive the resulting image and update messages from MDS.
 
 ```sh
-Jan 17, 2017 10:43:15 AM com.thomsonreuters.ema.access.ChannelCallbackClient reactorChannelEventCallback
+Jan 17, 2017 10:43:15 AM com.refinitiv.ema.access.ChannelCallbackClient reactorChannelEventCallback
 INFO: loggerMsg
 	ClientName: ChannelCallbackClient
 	Severity: Info
