@@ -1,6 +1,6 @@
-# Publishing content from internal database to TREP
+# Publishing content from internal database to MDS
 
-Database is/was a central entity in many legacy systems. Applications were built and maintained around database capabilities, resulting in accumulation of high quality and rare information in the database. With the advent of newer technologies, which have moved from database centric to message oriented architecture, often times there is a need for an adapter which can extract the information from database and provide it on a bus. This article will briefly discuss various mechanisms to do such a thing. In this article we will discuss techniques which can be used to extract data from a table, and develop a minimal OMM publisher using Refinitiv Realtime API to publish this extracted data to TREP infrastructure. The sample code provided with this article is specifically for MySQL database, but can be extended to any other database and complex schema's. While a simple usage scenario is discussed in this article, an application developer should also consider possibilities - such as when database information is published, but the transaction rolls back, making the just published information incorrect.
+Database is/was a central entity in many legacy systems. Applications were built and maintained around database capabilities, resulting in accumulation of high quality and rare information in the database. With the advent of newer technologies, which have moved from database centric to message oriented architecture, often times there is a need for an adapter which can extract the information from database and provide it on a bus. This article will briefly discuss various mechanisms to do such a thing. In this article we will discuss techniques which can be used to extract data from a table, and develop a minimal OMM publisher using Refinitiv Realtime API to publish this extracted data to MDS infrastructure. The sample code provided with this article is specifically for MySQL database, but can be extended to any other database and complex schema's. While a simple usage scenario is discussed in this article, an application developer should also consider possibilities - such as when database information is published, but the transaction rolls back, making the just published information incorrect.
 
 Refinitiv also provides a product called Database Publishing System (DPS), which is a tightly integrated component of the Refinitiv Realtime Market Data System that publishes information stored inside relational databases or flat files, in CSV and XML formats, and makes it available to any data consuming application.
 
@@ -95,7 +95,7 @@ This technique of using database trigger is explored in this article, using MySQ
 
 ### Solution
 
-We will develop an adapter application which will read database information and appear as non-interactive OMM provider to enterprise platform. Since databases can be updated anytime, the [**database triggers**](#database-triggers) mechanism as described above will be utilized. In our case the trigger will extract the new or updated data into an external file, which the adapter code will read and publish to [TREP](#glossary) infrastructure.
+We will develop an adapter application which will read database information and appear as non-interactive OMM provider to enterprise platform. Since databases can be updated anytime, the [**database triggers**](#database-triggers) mechanism as described above will be utilized. In our case the trigger will extract the new or updated data into an external file, which the adapter code will read and publish to [MDS](#glossary) infrastructure.
 
 The data model of published content will be specific to information within database. For the purpose of this article, we will assume a flat non-relational schema which will be encoded and published as [OMM](#glossary) based Market Price message. A supporting trigger code will reside in our database and will be invoked whenever the data changes in the monitored table. This trigger will write changed information (to be published) to a flat file. 
 
@@ -158,7 +158,7 @@ Sample code for this article is available in src directory. This sample uses Jav
 
 
 ### Testing
-To check the end to end process flow, start the sample by providing a TREP Service name, ADS host name etc on the command line. You must be entitled to publish on this service and can refer to [RTSDK Quick Start and Tutorials - NI Provider](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-java/tutorials#ema-ni-provider-introduction) on how to set this up. Upon successful startup, the console window should display API messages showing successful login to ADS, and that application is monitoring the target directory for database files. Whenever any new data is inserted into target table, our trigger **autopublish1** will be invoked which will write it to a file, and that data will be picked up by **Scanner** published out to TREP.
+To check the end to end process flow, start the sample by providing a MDS Service name, ADS host name etc on the command line. You must be entitled to publish on this service and can refer to [RTSDK Quick Start and Tutorials - NI Provider](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-java/tutorials#ema-ni-provider-introduction) on how to set this up. Upon successful startup, the console window should display API messages showing successful login to ADS, and that application is monitoring the target directory for database files. Whenever any new data is inserted into target table, our trigger **autopublish1** will be invoked which will write it to a file, and that data will be picked up by **Scanner** published out to MDS.
 
 ```sh
 Started monitoring: C:\Temp
@@ -192,7 +192,7 @@ Outgoing Reactor message (Tue Jan 17 10:43:23 EST 2017):
 </UPDATE>
 ```
 
-Any market data subscriber is able to receive the resulting image and update messages from TREP.
+Any market data subscriber is able to receive the resulting image and update messages from MDS.
 
 ```sh
 Jan 17, 2017 10:43:15 AM com.thomsonreuters.ema.access.ChannelCallbackClient reactorChannelEventCallback
@@ -220,9 +220,7 @@ ASK(25): 17.45
 ### References
 
 
-* [Elektron SDK](https://developers.thomsonreuters.com/elektron/elektron-sdk-java/docs)
-* [EMA - Quick Start](https://developers.thomsonreuters.com/elektron/elektron-sdk-java/quick-start)
-* [EMA - Non Interactive Provider Example](https://developers.thomsonreuters.com/elektron/elektron-sdk-java/learning?content=12016&type=learning_material_item) 
+* [RTSDK](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-java/tutorials)
 * [MySQL Database](https://www.mysql.com/)
 * [MySQL Triggers](https://dev.mysql.com/doc/refman/5.7/en/trigger-syntax.html)
 
